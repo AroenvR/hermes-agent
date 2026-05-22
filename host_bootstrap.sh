@@ -3,10 +3,8 @@
 # host-bootstrap.sh — one-time host-side setup for the server.
 #
 # What it does:
-#   1. Enables systemd lingering for the current user (containers
-#      survive SSH disconnects and session cleanup).
-#   2. Grants the current user passwordless sudo for journalctl
-#      (used by for diagnostics).
+#   1. Enables systemd lingering for the current user (containers survive SSH disconnects and session cleanup).
+#   2. Grants the current user passwordless sudo for journalctl (used by for diagnostics).
 #   3. Verifies both took effect.
 #
 # Run once per fresh server. Safe to re-run — idempotent.
@@ -91,5 +89,3 @@ fi
 
 echo ""
 echo "host-bootstrap complete."
-
-# TODO: chmod and run the `./skills/bootstrap_skills.sh` script to setup our custom skills.

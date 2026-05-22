@@ -7,6 +7,7 @@ Setup notes for running [Hermes Agent](https://hermes-agent.nousresearch.com/) i
 ## TODO: 
 - Create a script for the actions in this README file, simply provide the README file as documentation, not a walkthrough.
 - Ensure it fits the Containerfile and host_bootstrap.sh and other supporting files in naming conventions.
+- Mention the bootstrap_skills script needs to be ran once the gateway is configured and up & running.
 
 ---
 
