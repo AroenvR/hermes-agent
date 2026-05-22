@@ -1,13 +1,18 @@
-# Atoll on a Droplet — Hermes Agent in a Podman container
+# Hermes Agent on an Ubuntu server within a Podman container
 
-Setup notes for running [Hermes Agent](https://hermes-agent.nousresearch.com/)
-in a Podman container on a fresh Ubuntu.
+Setup notes for running [Hermes Agent](https://hermes-agent.nousresearch.com/) in a Podman container on a fresh Ubuntu.
+
+--
+
+## TODO: 
+- Create a script for the actions in this README file, simply provide the README file as documentation, not a walkthrough.
+- Ensure it fits the Containerfile and host_bootstrap.sh and other supporting files in naming conventions.
 
 ---
 
 ## What you'll have at the end
 
-- A server running Ubuntu 24.04 LTS with a non-root `atoll` user.
+- A server running Ubuntu 24.04 LTS with a non-root `manager` user.
 - Podman installed.
 - A custom Hermes container image (`hermes:v1`) built locally.
 - Hermes's state living on the host at `~/hermes/`, persistent across
@@ -19,9 +24,7 @@ in a Podman container on a fresh Ubuntu.
   - Ubuntu 24.04 LTS
   - 2 vCPU, 4 GB RAM minimum (Hermes's own minimum)
   - 25+ GB disk
-- SSH access to the server (key-based; password root login is fine for
-  the very first connection but we'll move off it).
-- A laptop with an SSH client (any terminal).
+- SSH access to the server.
 
 ## The setup
 
@@ -37,24 +40,24 @@ Create a regular user. This prompts for a password — keep it; sudo will
 ask for it, which is the boundary we want.
 
 ```bash
-adduser atoll
-usermod -aG sudo atoll
+adduser manager
+usermod -aG sudo manager
 ```
 
-Copy your SSH key over so you can log in directly as `atoll`:
+Copy your SSH key over so you can log in directly as `manager`:
 
 ```bash
-mkdir -p /home/atoll/.ssh
-cp ~/.ssh/authorized_keys /home/atoll/.ssh/
-chown -R atoll:atoll /home/atoll/.ssh
-chmod 700 /home/atoll/.ssh
-chmod 600 /home/atoll/.ssh/authorized_keys
+mkdir -p /home/manager/.ssh
+cp ~/.ssh/authorized_keys /home/manager/.ssh/
+chown -R manager:manager /home/manager/.ssh
+chmod 700 /home/manager/.ssh
+chmod 600 /home/manager/.ssh/authorized_keys
 ```
 
 **Verify before continuing.** Open a second terminal locally:
 
 ```bash
-ssh atoll@YOUR_SERVER_IP
+ssh manager@YOUR_SERVER_IP
 ```
 
 Should log in without a password. Then test sudo:
@@ -63,7 +66,7 @@ Should log in without a password. Then test sudo:
 sudo whoami     # should ask for password, then print 'root'
 ```
 
-If both work, close the root session. Stay on as `atoll` from here on.
+If both work, close the root session. Stay on as `manager` from here on.
 
 ### 2. Install Podman
 
@@ -105,16 +108,6 @@ This directory will hold all of Hermes's persistent state (config, memory,
 skills, sessions). It survives container rebuilds.
 
 ### 6. Build the Hermes container image
-
-Create a build directory:
-
-```bash
-mkdir -p ~/atoll-build
-cd ~/atoll-build
-```
-
-Drop the `Containerfile` from this repo into `~/build/hermes/Containerfile`.
-Then build:
 
 ```bash
 podman build --tag hermes:v1 .
@@ -184,7 +177,7 @@ Helper scripts:
 - `run_podman_hermes_dashboard.sh` runs the Hermes Agent's dashboard in a restarting container on port 9119 in the server. *
 
 Notes*:
-Open up an SSH tunnel to the VPS on your local machine with `ssh -L 9119:127.0.0.1:9119 atoll@SERVER_IP` to access the WebUI at http://127.0.0.1:9119/ in your local browser.
+Open up an SSH tunnel to the VPS on your local machine with `ssh -L 9119:127.0.0.1:9119 manager@SERVER_IP` to access the WebUI at http://127.0.0.1:9119/ in your local browser.
 
 Enter the container with:
 ```bash
