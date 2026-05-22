@@ -20,6 +20,12 @@ VAULT_DIR="$HERMES_HOME/vault"
 SOURCE_SKILL_MD="$SCRIPT_DIR/SKILL.md"
 DEST_SKILL_MD="$SKILL_DIR/SKILL.md"
 
+SOURCE_INDEX_MD="$SCRIPT_DIR/INDEX.md"
+DEST_INDEX_MD="$VAULT_DIR/INDEX.md"
+
+SOURCE_TODO_MD="$SCRIPT_DIR/TODO.md"
+DEST_TODO_MD="$VAULT_DIR/TODO.md"
+
 log() {
   printf '[wikilinks-vault] %s\n' "$*"
 }
@@ -65,23 +71,6 @@ copy_file_if_missing() {
   log "Created file: $dest"
 }
 
-create_empty_file_if_missing() {
-  local file="$1"
-
-  if [[ -f "$file" ]]; then
-    log "File exists, leaving unchanged: $file"
-    return 0
-  fi
-
-  if [[ -e "$file" ]]; then
-    fail "Path exists but is not a regular file: $file"
-  fi
-
-  mkdir -p "$(dirname "$file")"
-  : > "$file"
-  log "Created empty file: $file"
-}
-
 main() {
   log "USER: $USER"
   log "HERMES_HOME: $HERMES_HOME"
@@ -93,8 +82,8 @@ main() {
   copy_file_if_missing "$SOURCE_SKILL_MD" "$DEST_SKILL_MD"
 
   ensure_dir "$VAULT_DIR"
-  create_empty_file_if_missing "$VAULT_DIR/INDEX.md"
-  create_empty_file_if_missing "$VAULT_DIR/TODO.md"
+  copy_file_if_missing "$SOURCE_INDEX_MD" "$DEST_INDEX_MD"
+  copy_file_if_missing "$SOURCE_TODO_MD" "$DEST_TODO_MD"
 
   log "Done"
 }
