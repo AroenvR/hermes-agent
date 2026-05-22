@@ -1,7 +1,7 @@
 $ cat SKILL.md 
 ---
 name: wikilinks-vault
-description: "Use when reading, writing, or maintaining structured long-term memory vault under ~/hermes/vault/: INDEX-driven navigation, wikilinks, authority rules, promotion policy, note naming, and safe cross-tool markdown edits."
+description: "Use when reading, writing, or maintaining structured long-term memory vault under /home/$USER/hermes/vault/: INDEX-driven navigation, wikilinks, authority rules, promotion policy, note naming, and safe cross-tool markdown edits."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -16,7 +16,7 @@ metadata:
 
 ## Overview
 
-The wikilinks vault is structured long-term memory: a local markdown graph under `~/hermes/vault/`, navigated through `INDEX.md` and connected with `[[wikilinks]]`. It lives alongside `MEMORY.md` and `USER.md`; it does not replace them.
+The wikilinks vault is structured long-term memory: a local markdown graph under `/home/$USER/hermes/vault/`, navigated through `INDEX.md` and connected with `[[wikilinks]]`. It lives alongside `MEMORY.md` and `USER.md`; it does not replace them.
 
 Use the vault for durable, nuanced, cross-linked context that is too large or too relational for always-injected memory: people, agents, systems, projects, decisions, workflows, concepts, source notes, and session syntheses. The vault should inform current work without haunting it. Current user instructions and higher-priority system/developer instructions always win.
 
@@ -46,7 +46,7 @@ When vault notes conflict with other context, apply this hierarchy:
 1. Current user message and explicit current instruction.
 2. System/developer instructions.
 3. `USER.md` and `MEMORY.md` durable memory.
-4. Vault notes under `~/hermes/vault/`.
+4. Vault notes under `/home/$USER/hermes/vault/`.
 5. Session search / historical transcripts.
 6. Stale or ambiguous notes, unless corroborated.
 

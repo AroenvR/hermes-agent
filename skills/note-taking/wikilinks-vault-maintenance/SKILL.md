@@ -18,7 +18,7 @@ metadata:
 This skill is the maintenance-and-versioning companion to `wikilinks-vault`. It serves one directory only:
 
 ```text
-/home/hermes/vault/
+/home/$USER/hermes/vault/
 ```
 
 It encodes nightly, local-only maintenance for the structured memory vault using git as the substrate. The repository is local-only, linear, and boring on purpose: no remotes, no branches, no rebases, no force operations. Git history is both backup-within-scope and the asynchronous handoff channel between user and agent.
