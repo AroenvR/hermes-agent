@@ -89,15 +89,15 @@ ensure_git_repo() {
   if git -C "$VAULT_DIR" config --get user.name >/dev/null; then
     log "Git user.name already configured, leaving unchanged"
   else
-    git -C "$VAULT_DIR" config user.name "Opto"
-    log "Configured git user.name: Opto"
+    git -C "$VAULT_DIR" config user.name "Maintainer"
+    log "Configured git user.name: Maintainer"
   fi
 
   if git -C "$VAULT_DIR" config --get user.email >/dev/null; then
     log "Git user.email already configured, leaving unchanged"
   else
-    git -C "$VAULT_DIR" config user.email "opto@atoll.local"
-    log "Configured git user.email: opto@atoll.local"
+    git -C "$VAULT_DIR" config user.email "maintainer@hermes.local"
+    log "Configured git user.email: maintainer@hermes.local"
   fi
 }
 

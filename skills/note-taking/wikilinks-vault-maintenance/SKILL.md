@@ -18,7 +18,7 @@ metadata:
 This skill is the maintenance-and-versioning companion to `wikilinks-vault`. It serves one directory only:
 
 ```text
-/home/$USER/hermes/vault/
+~/.hermes/vault/
 ```
 
 It encodes nightly, local-only maintenance for the structured memory vault using git as the substrate. The repository is local-only, linear, and boring on purpose: no remotes, no branches, no rebases, no force operations. Git history is both backup-within-scope and the asynchronous handoff channel between user and agent.
@@ -53,7 +53,7 @@ Use the `terminal` tool for git commands. Git is invoked through bash in this en
 git --version
 ```
 
-Run git commands with `workdir=/home/$USER/hermes/vault` where possible. Do not touch files outside `/home/$USER/hermes/vault/` during a maintenance run unless the user explicitly asks.
+Run git commands with `workdir=~/.hermes/vault/` where possible. Do not touch files outside `~/.hermes/vault/` during a maintenance run unless the user explicitly asks.
 
 ## Hard Rules
 
@@ -99,13 +99,13 @@ Use `maint:` for maintenance logs and marker-adjacent setup commits. Do not inve
 Marker path:
 
 ```text
-/home/$USER/hermes/vault/.maintenance-state
+~/.hermes/vault/.maintenance-state
 ```
 
 Temp marker path:
 
 ```text
-/home/$USER/hermes/vault/.maintenance-state.tmp
+~/.hermes/vault/.maintenance-state.tmp
 ```
 
 The marker contains the commit hash of the last `HEAD` successfully processed by maintenance. It is deliberately a gitignored dotfile in the vault rather than a git ref, so the user can discover it with `ls -la`.
@@ -204,7 +204,7 @@ Do not rewrite human or other-entity edited files just to normalize style. Prese
 Path:
 
 ```text
-/home/$USER/hermes/vault/TODO.md
+~/.hermes/vault/TODO.md
 ```
 
 If it exists, process at most **5** actionable items per run.
@@ -222,7 +222,7 @@ Keep TODO commits separate from content-fix commits so the user can see both the
 Path:
 
 ```text
-/home/$USER/hermes/vault/inbox/
+~/.hermes/vault/inbox/
 ```
 
 If it exists, triage at most **5** inbox items per run.
@@ -253,13 +253,13 @@ Default posture: **log, don't fix**. Add small repair items to `TODO.md` and com
 Maintenance logs live under:
 
 ```text
-/home/$USER/hermes/vault/maintenance/
+~/.hermes/vault/maintenance/
 ```
 
 Use one file per date:
 
 ```text
-/home/$USER/hermes/vault/maintenance/YYYY-MM-DD.md
+~/.hermes/vault/maintenance/YYYY-MM-DD.md
 ```
 
 This is intentionally not `sessions/`: maintenance logs are operational metadata, while `sessions/` is for curated conversation/session syntheses. If multiple runs happen on the same date, append a new timestamped section to the same daily file.
@@ -384,14 +384,14 @@ Until the user approves such a policy, keep daily logs.
 
 7. **Committing the marker.** `.maintenance-state` and `.maintenance-state.tmp` must stay gitignored.
 
-8. **Touching outside the vault.** Maintenance operates only under `/home/$USER/hermes/vault/` unless explicitly instructed.
+8. **Touching outside the vault.** Maintenance operates only under `~/.hermes/vault/` unless explicitly instructed.
 
 ## Verification Checklist
 
 Before a maintenance run:
 
 - [ ] `wikilinks-vault` is loaded too.
-- [ ] Vault path is `/home/$USER/hermes/vault/`.
+- [ ] Vault path is `~/.hermes/vault/`.
 - [ ] Git commands use `terminal` with the vault as workdir.
 - [ ] No remotes, branches, reset, rebase, amend, or force operations are used.
 

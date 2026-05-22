@@ -1,7 +1,6 @@
-$ cat SKILL.md 
 ---
 name: wikilinks-vault
-description: "Use when reading, writing, or maintaining structured long-term memory vault under /home/$USER/hermes/vault/: INDEX-driven navigation, wikilinks, authority rules, promotion policy, note naming, and safe cross-tool markdown edits."
+description: "Use when reading, writing, or maintaining structured long-term memory vault under ~/.hermes/vault/: INDEX-driven navigation, wikilinks, authority rules, promotion policy, note naming, and safe cross-tool markdown edits."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -16,7 +15,7 @@ metadata:
 
 ## Overview
 
-The wikilinks vault is structured long-term memory: a local markdown graph under `/home/$USER/hermes/vault/`, navigated through `INDEX.md` and connected with `[[wikilinks]]`. It lives alongside `MEMORY.md` and `USER.md`; it does not replace them.
+The wikilinks vault is structured long-term memory: a local markdown graph under `~/.hermes/vault/`, navigated through `INDEX.md` and connected with `[[wikilinks]]`. It lives alongside `MEMORY.md` and `USER.md`; it does not replace them.
 
 Use the vault for durable, nuanced, cross-linked context that is too large or too relational for always-injected memory: people, agents, systems, projects, decisions, workflows, concepts, source notes, and session syntheses. The vault should inform current work without haunting it. Current user instructions and higher-priority system/developer instructions always win.
 
@@ -27,13 +26,13 @@ The vault starts intentionally small. Create folders organically as needed; do n
 Default vault path:
 
 ```text
-/home/$USER/hermes/vault/
+~/.hermes/vault/
 ```
 
 Use concrete absolute paths with file tools:
 
-- Index: `/home/$USER/hermes/vault/INDEX.md`
-- Example path shape for a future note: `/home/$USER/hermes/vault/projects/foobar-project.md`
+- Index: `~/.hermes/vault/INDEX.md`
+- Example path shape for a future note: `~/.hermes/vault/projects/foobar-project.md`
 
 Example paths are illustrative only; do not assume a note exists just because it appears in this skill. Check with `read_file` or `search_files` before relying on it.
 
@@ -46,7 +45,7 @@ When vault notes conflict with other context, apply this hierarchy:
 1. Current user message and explicit current instruction.
 2. System/developer instructions.
 3. `USER.md` and `MEMORY.md` durable memory.
-4. Vault notes under `/home/$USER/hermes/vault/`.
+4. Vault notes under `~/.hermes/vault/`.
 5. Session search / historical transcripts.
 6. Stale or ambiguous notes, unless corroborated.
 
@@ -85,20 +84,20 @@ Do not read `INDEX.md` every turn. Do not ignore it forever. Use these triggers.
 Early on, the vault may be empty or sparse. If a trigger fires:
 
 1. Read `INDEX.md` first.
-2. If `INDEX.md` is empty or unhelpful, use `search_files` over `/home/$USER/hermes/vault/` for likely filenames/content.
+2. If `INDEX.md` is empty or unhelpful, use `search_files` over `~/.hermes/vault/` for likely filenames/content.
 3. If nothing exists, proceed from current context and optionally create/promote a note if the promotion rules say it belongs.
 
 As the vault grows, `INDEX.md` remains the entry point; search is the fallback for missing or stale index links.
 
 ## Navigation Workflow
 
-1. Read `/home/$USER/hermes/vault/INDEX.md` when a consult trigger fires.
+1. Read `~/.hermes/vault/INDEX.md` when a consult trigger fires.
 2. Identify relevant path-qualified wikilinks such as `[[projects/wikilinks-vault]]`.
 3. Convert a wikilink to a path by appending `.md` under the vault root:
-   - `[[projects/wikilinks-vault]]` → `/home/$USER/hermes/vault/projects/wikilinks-vault.md`
+   - `[[projects/wikilinks-vault]]` → `~/.hermes/vault/projects/wikilinks-vault.md`
 4. Read only notes likely to matter. Prefer following 1-3 high-signal links over crawling the graph.
 5. If links are broken, search by filename/content before concluding the note does not exist.
-6. If traversal reveals a broken link, missing expected note, stale map entry, outdated claim, duplicate-looking note, or other vault maintenance issue that is not needed for the current task, do not stop the workflow to repair it. Add a short deferred fix item to `/home/$USER/hermes/vault/TODO.md` and continue. Keep each item tiny and actionable, with the source note/link and what looked wrong.
+6. If traversal reveals a broken link, missing expected note, stale map entry, outdated claim, duplicate-looking note, or other vault maintenance issue that is not needed for the current task, do not stop the workflow to repair it. Add a short deferred fix item to `~/.hermes/vault/TODO.md` and continue. Keep each item tiny and actionable, with the source note/link and what looked wrong.
 7. In your final answer, cite vault-derived claims plainly when useful: "The vault note says..." or "Based on the vault's current project note..."
 
 Hermes does not natively resolve wikilinks. They are navigation hints for you and visual links for graph visualizers. You must consciously choose which linked notes are worth fetching; many links are decorative context, not mandatory reads. Follow the smallest set that improves the answer.
@@ -302,7 +301,13 @@ Do not create a second note until you have searched for an existing one.
 
 ## Vault Maintenance TODO.md
 
-Use `/home/$USER/hermes/vault/TODO.md` as a small deferred-repair list for vault hygiene discovered during normal traversal.
+Use `~/.hermes/vault/TODO.md` as a small deferred-repair list for vault hygiene discovered during normal traversal.
+
+Initial setup behavior:
+
+- If `TODO.md` contains a `[setup] Register the Hermes-native nightly cron job for wikilinks-vault-maintenance` item, treat it as actionable setup debt when either (a) the current user request is about vault setup, maintenance, cron, or checking whether the initial setup worked, or (b) this is the first/early vault write and the setup item was deliberately seeded by bootstrap.
+- In that case, load `wikilinks-vault-maintenance` and `hermes-agent`, verify existing Hermes cron jobs, create the missing Hermes-native cron job if absent, then remove the TODO item only after registration is verified.
+- If the current request is merely saving an unrelated note and the setup item cannot be safely resolved because the vault root or cron scope is ambiguous, preserve the TODO item and its `[[TODO]]` link rather than silently dropping it.
 
 Good TODO items are brief and repair-oriented:
 
@@ -335,7 +340,7 @@ Before creating or editing a vault note, confirm:
 
 - [ ] The content belongs in the vault rather than only in memory or the current session.
 - [ ] You searched for an existing note to avoid duplication.
-- [ ] You are using `/home/$USER/hermes/vault/` as the root.
+- [ ] You are using `~/.hermes/vault/` as the root.
 - [ ] Existing files were read before editing.
 - [ ] New filenames are kebab-case and path-qualified links resolve to plausible paths.
 - [ ] `INDEX.md` should be updated because the new/changed note is navigationally important.
