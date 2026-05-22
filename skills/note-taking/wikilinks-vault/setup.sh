@@ -1,30 +1,24 @@
-# TODO:
-# - This script should create the wikilinks-vault skill (~/hermes/skills/note-taking/wikilinks-vault)
-# - This script should copy the SKILL.md file to the skill's directory
-# - This script should check if the wikilinks' vault directory exists, and if it does not, it should create it (just incase this script is not ran first, and another skill already created the directory).
-# - This script should create the empty /vault/INDEX.md file
-# - This script should create the empty /vault/TODO.md file
-
 #!/usr/bin/env bash
 set -euo pipefail
 
 echo "Setting up the wikilinks-vault skill"
 
-# Source directory: the directory this script lives in.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Runtime Hermes home.
-# Override with HERMES_HOME=/some/path if needed.
-HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
+# Target Hermes home.
+#
+# Default:
+#   /home/$USER/hermes
+#
+# Override if needed:
+#   HERMES_HOME=/some/path bash setup.sh
+HERMES_HOME="${HERMES_HOME:-/home/$USER/hermes}"
 
-# Installed skill destination.
-SKILL_DEST_DIR="$HERMES_HOME/skills/note-taking/wikilinks-vault"
-
-# Wikilinks vault destination.
+SKILL_DIR="$HERMES_HOME/skills/note-taking/wikilinks-vault"
 VAULT_DIR="$HERMES_HOME/vault"
 
-SKILL_SRC_FILE="$SCRIPT_DIR/SKILL.md"
-SKILL_DEST_FILE="$SKILL_DEST_DIR/SKILL.md"
+SOURCE_SKILL_MD="$SCRIPT_DIR/SKILL.md"
+DEST_SKILL_MD="$SKILL_DIR/SKILL.md"
 
 log() {
   printf '[wikilinks-vault] %s\n' "$*"
@@ -35,39 +29,81 @@ fail() {
   exit 1
 }
 
-create_file_if_missing() {
+ensure_dir() {
+  local dir="$1"
+
+  if [[ -d "$dir" ]]; then
+    log "Directory exists, leaving unchanged: $dir"
+    return 0
+  fi
+
+  if [[ -e "$dir" ]]; then
+    fail "Path exists but is not a directory: $dir"
+  fi
+
+  mkdir -p "$dir"
+  log "Created directory: $dir"
+}
+
+copy_file_if_missing() {
+  local src="$1"
+  local dest="$2"
+
+  [[ -f "$src" ]] || fail "Source file is missing: $src"
+
+  if [[ -f "$dest" ]]; then
+    log "File exists, leaving unchanged: $dest"
+    return 0
+  fi
+
+  if [[ -e "$dest" ]]; then
+    fail "Path exists but is not a regular file: $dest"
+  fi
+
+  mkdir -p "$(dirname "$dest")"
+  cp "$src" "$dest"
+  log "Created file: $dest"
+}
+
+create_empty_file_if_missing() {
   local file="$1"
 
-  if [[ -e "$file" ]]; then
-    log "Exists, leaving unchanged: $file"
+  if [[ -f "$file" ]]; then
+    log "File exists, leaving unchanged: $file"
     return 0
+  fi
+
+  if [[ -e "$file" ]]; then
+    fail "Path exists but is not a regular file: $file"
   fi
 
   mkdir -p "$(dirname "$file")"
   : > "$file"
-  log "Created: $file"
+  log "Created empty file: $file"
 }
 
 main() {
-  [[ -f "$SKILL_SRC_FILE" ]] || fail "Missing source SKILL.md: $SKILL_SRC_FILE"
+  log "USER: $USER"
+  log "HERMES_HOME: $HERMES_HOME"
+  log "Source skill: $SOURCE_SKILL_MD"
+  log "Skill destination: $SKILL_DIR"
+  log "Vault destination: $VAULT_DIR"
 
-  mkdir -p "$SKILL_DEST_DIR"
-  log "Ensured skill directory: $SKILL_DEST_DIR"
+  ensure_dir "$SKILL_DIR"
+  copy_file_if_missing "$SOURCE_SKILL_MD" "$DEST_SKILL_MD"
 
-  if [[ -e "$SKILL_DEST_FILE" ]]; then
-    log "SKILL.md already exists, leaving unchanged: $SKILL_DEST_FILE"
-  else
-    cp "$SKILL_SRC_FILE" "$SKILL_DEST_FILE"
-    log "Installed SKILL.md: $SKILL_DEST_FILE"
-  fi
-
-  mkdir -p "$VAULT_DIR"
-  log "Ensured vault directory: $VAULT_DIR"
-
-  create_file_if_missing "$VAULT_DIR/INDEX.md"
-  create_file_if_missing "$VAULT_DIR/TODO.md"
+  ensure_dir "$VAULT_DIR"
+  create_empty_file_if_missing "$VAULT_DIR/INDEX.md"
+  create_empty_file_if_missing "$VAULT_DIR/TODO.md"
 
   log "Done"
 }
 
 main "$@"
+
+# TODO:
+# - This script should create the wikilinks-vault skill (~/hermes/skills/note-taking/wikilinks-vault)
+# - This script should copy the SKILL.md file to the skill's directory
+# - This script should check if the wikilinks' vault directory exists, and if it does not, it should create it (just incase this script is not ran first, and another skill already created the directory).
+# - This script should create the empty /vault/INDEX.md file
+# - This script should create the empty /vault/TODO.md file
