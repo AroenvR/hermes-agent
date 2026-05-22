@@ -1,4 +1,4 @@
-echo "Setting up the wikilinks-vault-maintenance skill"
+echo "\nSetting up the wikilinks-vault-maintenance skill"
 
 # TODO:
 # - This script should create the wikilinks-vault-maintenance skill (~/hermes/skills/note-taking/wikilinks-vault-maintenance)
