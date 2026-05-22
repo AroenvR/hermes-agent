@@ -91,3 +91,5 @@ fi
 
 echo ""
 echo "host-bootstrap complete."
+
+# TODO: Run the `./skills/bootstrap_skills.sh` script to setup our custom skills.
