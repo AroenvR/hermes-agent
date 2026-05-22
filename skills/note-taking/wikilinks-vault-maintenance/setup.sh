@@ -6,25 +6,23 @@ echo "Setting up the wikilinks-vault-maintenance skill"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Hermes home.
+# Target Hermes home.
+#
+# Default:
+#   /home/$USER/hermes
+#
 # Override if needed:
 #   HERMES_HOME=/some/path bash setup.sh
 HERMES_HOME="${HERMES_HOME:-/home/$USER/hermes}"
 
 SKILL_DIR="$HERMES_HOME/skills/note-taking/wikilinks-vault-maintenance"
 VAULT_DIR="$HERMES_HOME/vault"
-LOG_DIR="$HERMES_HOME/logs"
 
 SOURCE_SKILL_MD="$SCRIPT_DIR/SKILL.md"
 DEST_SKILL_MD="$SKILL_DIR/SKILL.md"
 
 SOURCE_GITIGNORE="$SCRIPT_DIR/gitignore"
 DEST_GITIGNORE="$VAULT_DIR/.gitignore"
-
-CRON_NAME="wikilinks-vault-maintenance"
-CRON_BEGIN="# BEGIN $CRON_NAME"
-CRON_END="# END $CRON_NAME"
-CRON_LOG="$LOG_DIR/$CRON_NAME.log"
 
 log() {
   printf '[wikilinks-vault-maintenance] %s\n' "$*"
@@ -71,39 +69,14 @@ copy_file_if_missing() {
   log "Created file: $dest"
 }
 
-merge_gitignore() {
-  [[ -f "$SOURCE_GITIGNORE" ]] || fail "Source gitignore is missing: $SOURCE_GITIGNORE"
-
-  if [[ ! -f "$DEST_GITIGNORE" ]]; then
-    cp "$SOURCE_GITIGNORE" "$DEST_GITIGNORE"
-    log "Created gitignore: $DEST_GITIGNORE"
-    return 0
-  fi
-
-  if [[ ! -w "$DEST_GITIGNORE" ]]; then
-    fail "Existing .gitignore is not writable: $DEST_GITIGNORE"
-  fi
-
-  local changed=0
-  local line
-
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    [[ -z "$line" ]] && continue
-
-    if ! grep -Fxq "$line" "$DEST_GITIGNORE"; then
-      printf '%s\n' "$line" >> "$DEST_GITIGNORE"
-      changed=1
-    fi
-  done < "$SOURCE_GITIGNORE"
-
-  if [[ "$changed" -eq 1 ]]; then
-    log "Updated gitignore with missing entries: $DEST_GITIGNORE"
-  else
-    log "Gitignore already contains required entries: $DEST_GITIGNORE"
+ensure_git_available() {
+  if ! command -v git >/dev/null 2>&1; then
+    fail "git is not available on PATH"
   fi
 }
 
 ensure_git_repo() {
+  ensure_git_available
   ensure_dir "$VAULT_DIR"
 
   if git -C "$VAULT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -113,53 +86,54 @@ ensure_git_repo() {
     log "Initialized git repository: $VAULT_DIR"
   fi
 
-  # Local repo identity only. Do not overwrite if already configured.
-  if ! git -C "$VAULT_DIR" config --get user.name >/dev/null; then
-    git -C "$VAULT_DIR" config user.name "Maintainer"
-    log "Configured git user.name: Maintainer"
-  else
+  if git -C "$VAULT_DIR" config --get user.name >/dev/null; then
     log "Git user.name already configured, leaving unchanged"
+  else
+    git -C "$VAULT_DIR" config user.name "Opto"
+    log "Configured git user.name: Opto"
   fi
 
-  if ! git -C "$VAULT_DIR" config --get user.email >/dev/null; then
-    git -C "$VAULT_DIR" config user.email "maintainer@hermes.local"
-    log "Configured git user.email: maintainer@hermes.local"
-  else
+  if git -C "$VAULT_DIR" config --get user.email >/dev/null; then
     log "Git user.email already configured, leaving unchanged"
+  else
+    git -C "$VAULT_DIR" config user.email "opto@atoll.local"
+    log "Configured git user.email: opto@atoll.local"
   fi
 }
 
-install_cron_job() {
-  local hermes_bin
-  hermes_bin="$(command -v hermes || true)"
+merge_gitignore_if_missing() {
+  [[ -f "$SOURCE_GITIGNORE" ]] || fail "Source gitignore is missing: $SOURCE_GITIGNORE"
 
-  if [[ -z "$hermes_bin" ]]; then
-    log "Hermes CLI not found on PATH; skipping cron setup."
-    log "Install cron manually after Hermes is available."
+  if [[ ! -f "$DEST_GITIGNORE" ]]; then
+    cp "$SOURCE_GITIGNORE" "$DEST_GITIGNORE"
+    log "Created file: $DEST_GITIGNORE"
     return 0
   fi
 
-  ensure_dir "$LOG_DIR"
+  if [[ -e "$DEST_GITIGNORE" && ! -f "$DEST_GITIGNORE" ]]; then
+    fail "Path exists but is not a regular file: $DEST_GITIGNORE"
+  fi
 
-  local cron_command
-  cron_command="0 3 * * * HERMES_HOME=\"$HERMES_HOME\" \"$hermes_bin\" chat -Q -s wikilinks-vault,wikilinks-vault-maintenance -q 'Run the canonical wikilinks vault maintenance flow for the vault at $VAULT_DIR. Respect the skill rules: local git only, no remotes, no branches, no history rewriting, process bounded TODO/inbox work, write a maintenance log, and advance the maintenance marker only after a successful run.' >> \"$CRON_LOG\" 2>&1"
+  local changed=0
+  local line
 
-  local existing_cron
-  existing_cron="$(crontab -l 2>/dev/null || true)"
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    # Keep the merge simple:
+    # - ignore blank lines from the source
+    # - append only entries that are not already present exactly
+    [[ -n "$line" ]] || continue
 
-  # Remove any previous managed block, then append the current one.
-  {
-    printf '%s\n' "$existing_cron" \
-      | sed "/^$CRON_BEGIN$/,/^$CRON_END$/d" \
-      | sed '/^[[:space:]]*$/N;/^\n$/D'
+    if ! grep -Fxq "$line" "$DEST_GITIGNORE"; then
+      printf '%s\n' "$line" >> "$DEST_GITIGNORE"
+      changed=1
+    fi
+  done < "$SOURCE_GITIGNORE"
 
-    printf '%s\n' "$CRON_BEGIN"
-    printf '%s\n' "$cron_command"
-    printf '%s\n' "$CRON_END"
-  } | crontab -
-
-  log "Installed nightly cron job: $CRON_NAME"
-  log "Cron log: $CRON_LOG"
+  if [[ "$changed" -eq 1 ]]; then
+    log "Updated file with missing gitignore entries: $DEST_GITIGNORE"
+  else
+    log "Gitignore already contains required entries, leaving unchanged: $DEST_GITIGNORE"
+  fi
 }
 
 main() {
@@ -173,19 +147,9 @@ main() {
   copy_file_if_missing "$SOURCE_SKILL_MD" "$DEST_SKILL_MD"
 
   ensure_git_repo
-  merge_gitignore
-  install_cron_job
+  merge_gitignore_if_missing
 
   log "Done"
 }
 
 main "$@"
-
-
-# TODO:
-# - This script should create the wikilinks-vault-maintenance skill (~/hermes/skills/note-taking/wikilinks-vault-maintenance)
-# - This script should copy the SKILL.md file to the skill's directory
-# - This script should check if the wikilinks' vault directory exists, and if it does not, it should create it (just incase this script is ran first).
-# - This script should initialize a git repository inside the wikilinks' vault directory (or at least ensure it exists, incase it does not yet)
-# - This script should copy the `gitignore` file to the wikilinks' vault directory as `.gitignore`.
-# - This script should setup a nightly cron job to kickstart this skill.

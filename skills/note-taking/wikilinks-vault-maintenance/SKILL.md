@@ -183,7 +183,7 @@ Classify by evidence, in this order:
 4. **Ambiguous but inspectable** — read the changed files/current state and decide whether a small TODO is needed.
 5. **Ambiguous and risky** — add a TODO with hash, author, subject, and why it needs review; do not modify the touched content this run.
 
-Git history is a communication channel, not a schema. A commit is the user or another entity handing me a note across time; read it respectfully even when the envelope is mislabeled.
+Git history is a communication channel, not a schema. A commit is the user or another entity handing the maintainer a note across time; read it respectfully even when the envelope is mislabeled.
 
 ### 3. Process Non-Maintenance Edits
 
