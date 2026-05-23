@@ -23,6 +23,8 @@ This skill is the maintenance-and-versioning companion to `wikilinks-vault`. It 
 
 It encodes nightly, local-only maintenance for the structured memory vault using git as the substrate. The repository is local-only, linear, and boring on purpose: no remotes, no branches, no rebases, no force operations. Git history is both backup-within-scope and the asynchronous handoff channel between user and agent.
 
+Ordinary vault writes are captured by host-side plumbing: `$HERMES_HOME/vault-auto-commit.sh` runs from host cron about every 15 minutes and commits pending vault changes with an `auto:` prefix. Maintenance still owns git for its own purposes: reviewing `marker..HEAD`, committing deliberate `maint:` work, writing maintenance logs, and advancing `.maintenance-state` only after its own successful run.
+
 ## Relationship to wikilinks-vault
 
 Always load and follow `wikilinks-vault` alongside this skill. Its authority hierarchy, promotion rules, naming conventions, editing rules, and `TODO.md` convention remain authoritative for vault content.
@@ -79,6 +81,7 @@ Helpful but non-authoritative prefixes:
 
 - `maint: <description>` — likely maintenance work.
 - `manual: <description>` — likely the user's hand-edit.
+- `auto: vault changes at <timestamp>` — host-side auto-committer snapshot of ambient vault writes; treat like `manual:` for review purposes.
 - Other prefixes such as `docs:`, `chore:`, `vault:`, `note:`, or no prefix at all are normal and must still be inspected.
 
 Examples:
@@ -88,11 +91,12 @@ maint: process broken link todo for maps/projects
 maint: promote inbox note about vault maintenance
 maint: write 2026-05-22 maintenance log
 manual: clarify a system note
+auto: vault changes at 2026-05-23T12:15:00Z
 docs: update the environment's map
 fix typo in fooman's note
 ```
 
-Use `maint:` for maintenance logs and marker-adjacent setup commits. Do not invent author identities to distinguish work; use commit metadata, changed files, content, and recent maintenance logs together. Prefix plus git author is useful evidence, never a sole decision rule.
+Use `maint:` for maintenance logs and marker-adjacent setup commits. Do not invent author identities to distinguish work; use commit subjects, changed files, diff content, current file state, and recent maintenance logs together. Bootstrap setup, host auto-commits, manual commits, and maintenance commits may all share the same git author (`Maintainer <maintainer@hermes.local>`), so `--author` is not a reliable source classifier. Prefix plus git author is useful evidence only when the environment makes it meaningful, never a sole decision rule.
 
 ## Maintenance State Marker
 
@@ -178,7 +182,7 @@ git show <hash> --
 Classify by evidence, in this order:
 
 1. **Known agent maintenance already processed or crash-replayed** — `maint:` subject plus maintaining agent's author/email and/or matching maintenance-log content. Treat as already done and do not re-process.
-2. **Likely human/manual edit** — User's author identity, non-maintainer author identity, user-facing note edits, or ordinary prose/content changes, regardless of prefix.
+2. **Likely human/manual or host-auto captured edit** — `manual:` or `auto:` subject, user-facing note edits, ordinary prose/content changes, or ambient changes captured by the host auto-committer. Inspect the diff; the diff is the signal and the prefix is metadata.
 3. **Likely other-agent edit** — bot/agent author identity, mechanical restructuring, or agent-like commit message. Inspect the content and preserve it unless a vault rule requires a bounded fix.
 4. **Ambiguous but inspectable** — read the changed files/current state and decide whether a small TODO is needed.
 5. **Ambiguous and risky** — add a TODO with hash, author, subject, and why it needs review; do not modify the touched content this run.
@@ -362,11 +366,14 @@ Until the user approves such a policy, keep daily logs.
 
 ### Dirty working tree at start
 
+A dirty tree at maintenance start is a signal, not a sweep opportunity. With the host auto-committer active, unexpected dirty state usually means active editing, the host auto-committer has not run yet or failed, Syncthing-style batch writes are mid-flight, or a previous maintenance run was interrupted. Do not mask that signal by running a generic `git add -A && git commit` from maintenance.
+
 1. Run `git status --short`.
 2. Inspect changed files with file tools and targeted git commands.
-3. If changes are clearly the user's uncommitted manual edits, do not touch them; log and stop.
-4. If changes are clearly the agent's interrupted maintenance unit, complete or safely commit that unit if possible.
-5. If uncertain, write a maintenance log and stop without advancing marker.
+3. If changes are clearly active user/manual/ambient edits, do not touch them; log and stop or skip without advancing marker. Let the host auto-committer capture them on its own schedule.
+4. If changes are clearly the agent's interrupted maintenance unit, complete or safely commit that specific logical unit with `maint:` if possible.
+5. If the dirty state suggests the host auto-committer is broken or lagging repeatedly, note it as a warning in the maintenance log/report rather than sweeping it.
+6. If uncertain, write a maintenance log if safe and stop without advancing marker.
 
 ## Common Pitfalls
 
