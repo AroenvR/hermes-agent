@@ -136,6 +136,56 @@ merge_gitignore_if_missing() {
   fi
 }
 
+setup_auto_commits() {
+  local autocommit_script="$HERMES_HOME/vault-auto-commit.sh"
+  local cron_line="*/15 * * * * $autocommit_script"
+  local script_marker="# managed by wikilinks-vault-maintenance setup.sh"
+
+  # Write the auto-commit script with a marker comment so we can detect
+  # whether it's our managed copy. Always overwrite — the script is
+  # small and may have been improved between setup runs.
+  cat > "$autocommit_script" <<EOF
+#!/usr/bin/env bash
+$script_marker
+# Auto-commit any uncommitted vault changes. Run by cron.
+# Silent on success, exits 0 if there's nothing to commit or no repo.
+
+set -euo pipefail
+
+VAULT_DIR="\${VAULT_DIR:-$VAULT_DIR}"
+
+# No vault or no git repo: silent no-op so cron doesn't spam mail.
+[[ -d "\$VAULT_DIR/.git" ]] || exit 0
+
+cd "\$VAULT_DIR"
+
+# Nothing changed: silent exit.
+if git diff --quiet \\
+   && git diff --cached --quiet \\
+   && [[ -z "\$(git ls-files --others --exclude-standard)" ]]; then
+  exit 0
+fi
+
+# Commit everything pending under an 'auto:' prefix.
+git add -A
+git commit -m "auto: vault changes at \$(date -u +%Y-%m-%dT%H:%M:%SZ)" >/dev/null
+EOF
+
+  chmod +x "$autocommit_script"
+  log "Installed auto-commit script: $autocommit_script"
+
+  # Install the cron entry idempotently. Preserve any existing crontab.
+  local current_crontab
+  current_crontab="$(crontab -l 2>/dev/null || true)"
+
+  if printf '%s\n' "$current_crontab" | grep -Fxq "$cron_line"; then
+    log "Auto-commit cron already installed, leaving unchanged"
+  else
+    printf '%s\n%s\n' "$current_crontab" "$cron_line" | crontab -
+    log "Installed auto-commit cron (every 15 minutes)"
+  fi
+}
+
 main() {
   log "USER: $USER"
   log "HERMES_HOME: $HERMES_HOME"
@@ -148,6 +198,7 @@ main() {
 
   ensure_git_repo
   merge_gitignore_if_missing
+  setup_auto_commits
 
   log "Done"
 }
