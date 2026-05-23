@@ -1,0 +1,19 @@
+# hermes-gateway.container
+[Unit]
+Description=Hermes Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=hermes-gateway
+Image=localhost/hermes:v1
+UserNS=keep-id
+Volume=%h/hermes:/home/hermes/.hermes:Z
+Exec=hermes gateway
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target

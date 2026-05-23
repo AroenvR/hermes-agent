@@ -1,0 +1,19 @@
+# hermes-dashboard.container
+[Unit]
+Description=Hermes Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=hermes-dashboard
+Image=localhost/hermes:v1
+UserNS=keep-id
+Volume=%h/hermes:/home/hermes/.hermes:Z
+Network=host
+Exec=hermes dashboard --no-open --host 127.0.0.1 --port 9119
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
