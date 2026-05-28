@@ -18,15 +18,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Source the common script
 . "$SCRIPT_DIR/../library/common.sh"
 
-log() {
-  printf '[bootstrap-skills] %s\n' "$*"
-}
-
-fail() {
-  printf '[bootstrap-skills] ERROR: %s\n' "$*" >&2
-  exit 1
-}
-
 run_setup() {
   local setup_file="$1"
   local skill_dir
@@ -39,7 +30,7 @@ run_setup() {
 
   (
     cd "$skill_dir"
-    bash "./setup.sh"
+    # bash "./setup.sh"
   )
 }
 
