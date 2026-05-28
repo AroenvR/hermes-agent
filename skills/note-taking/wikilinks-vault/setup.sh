@@ -7,13 +7,9 @@ echo "Setting up the wikilinks-vault skill"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Target Hermes home.
-#
-# Default:
-#   /home/$USER/hermes
-#
 # Override if needed:
 #   HERMES_HOME=/some/path bash setup.sh
-HERMES_HOME="${HERMES_HOME:-/home/$USER/hermes}"
+HERMES_HOME="${HERMES_HOME:-$HOME/hermes}"
 
 SKILL_DIR="$HERMES_HOME/skills/note-taking/wikilinks-vault"
 VAULT_DIR="$HERMES_HOME/vault"

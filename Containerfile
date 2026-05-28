@@ -1,4 +1,4 @@
-# Start from Ubuntu 24.04 — matches a typical DigitalOcean Droplet's OS.
+# Start from Ubuntu (current LTS) - Hermes' preferred distro.
 FROM ubuntu:24.04
 
 # Don't prompt during apt installs.
@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
   && rm -rf /var/lib/apt/lists/*
 
-# Ubuntu 24.04 ships with a default 'ubuntu' user at uid 1000.
+# Ubuntu ships with a default 'ubuntu' user at uid 1000.
 # Delete it and create our own 'hermes' user at the same uid.
 RUN userdel -r ubuntu \
   && useradd --create-home --shell /bin/bash --uid 1000 hermes
