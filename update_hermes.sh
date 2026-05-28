@@ -1,11 +1,17 @@
-TAG=v0.15.0-24.04
+#!/usr/bin/env bash
+set -e
 
-podman build --no-cache --pull=always --tag hermes:$TAG .
+# load env (only safe if .env.safe contains simple VAR=value lines)
+. .env.safe
 
-podman run --rm -it hermes:$TAG bash -lc '
-  whoami
-  node --version
-  python3 --version
-  command -v hermes
-  hermes --version || hermes version || true
-'
+echo $CURRENT_TAG
+
+# podman build --no-cache --pull=always --tag hermes:$CURRENT_TAG .
+
+# podman run --rm -it hermes:$CURRENT_TAG bash -lc '
+#   whoami
+#   node --version
+#   python3 --version
+#   command -v hermes
+#   hermes --version || hermes version || true
+# '
