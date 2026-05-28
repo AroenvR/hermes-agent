@@ -4,6 +4,7 @@ set -euo pipefail
 echo
 echo "Setting up the wikilinks-vault skill"
 
+SCRIPT_NAME="setup"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source the common script
@@ -21,51 +22,6 @@ DEST_INDEX_MD="$VAULT_DIR/INDEX.md"
 
 SOURCE_TODO_MD="$SCRIPT_DIR/TODO.md"
 DEST_TODO_MD="$VAULT_DIR/TODO.md"
-
-log() {
-  printf '[wikilinks-vault] %s\n' "$*"
-}
-
-fail() {
-  printf '[wikilinks-vault] ERROR: %s\n' "$*" >&2
-  exit 1
-}
-
-ensure_dir() {
-  local dir="$1"
-
-  if [[ -d "$dir" ]]; then
-    log "Directory exists, leaving unchanged: $dir"
-    return 0
-  fi
-
-  if [[ -e "$dir" ]]; then
-    fail "Path exists but is not a directory: $dir"
-  fi
-
-  mkdir -p "$dir"
-  log "Created directory: $dir"
-}
-
-copy_file_if_missing() {
-  local src="$1"
-  local dest="$2"
-
-  [[ -f "$src" ]] || fail "Source file is missing: $src"
-
-  if [[ -f "$dest" ]]; then
-    log "File exists, leaving unchanged: $dest"
-    return 0
-  fi
-
-  if [[ -e "$dest" ]]; then
-    fail "Path exists but is not a regular file: $dest"
-  fi
-
-  mkdir -p "$(dirname "$dest")"
-  cp "$src" "$dest"
-  log "Created file: $dest"
-}
 
 main() {
   log "USER: $USER"

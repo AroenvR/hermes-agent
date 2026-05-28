@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_NAME="setup_hermes_dashboard_container"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source the common script
@@ -9,9 +10,6 @@ require_var CURRENT_TAG
 
 QUADLET_DIR="$HOME/.config/containers/systemd"
 IMAGE_NAME="localhost/hermes:$CURRENT_TAG"
-
-log() { printf '[dashboard-setup] %s\n' "$*"; }
-fail() { printf '[dashboard-setup] ERROR: %s\n' "$*" >&2; exit 1; }
 
 # Pre-flight: image must exist before systemd tries to start a container from it.
 if ! podman image exists "$IMAGE_NAME"; then

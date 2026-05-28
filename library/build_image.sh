@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 set -e
 
+SCRIPT_NAME="build_image"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source the common script

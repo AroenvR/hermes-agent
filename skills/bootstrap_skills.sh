@@ -13,6 +13,7 @@ set -euo pipefail
 # This script does not install, copy, link, or modify skills directly.
 # Each skill's setup.sh is responsible for its own setup behavior.
 
+SCRIPT_NAME="bootstrap_skills"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source the common script

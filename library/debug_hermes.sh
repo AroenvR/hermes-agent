@@ -14,6 +14,7 @@
 
 set -uo pipefail   # not -e: several checks are allowed to fail; that's data
 
+SCRIPT_NAME="debug_hermes"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source the common script
