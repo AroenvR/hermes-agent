@@ -4,8 +4,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source the common script
-. "$SCRIPT_DIR/../../lib/common.sh"
+. "$SCRIPT_DIR/../../library/common.sh"
 require_var CURRENT_TAG
+
+# if [[ ! -f "$ENV_FILE" ]]; then
+#   printf 'ERROR: expected env file not found: %s\n' "$ENV_FILE" >&2
+#   exit 1
+# fi
 
 # QUADLET_DIR="$HOME/.config/containers/systemd"
 # IMAGE_NAME="localhost/hermes:$CURRENT_TAG"
