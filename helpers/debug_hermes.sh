@@ -14,9 +14,14 @@
 
 set -uo pipefail   # not -e: several checks are allowed to fail; that's data
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Load safe env
+. "$SCRIPT_DIR/../.env.safe"
+
 GATEWAY="hermes-gateway"
 DASHBOARD="hermes-dashboard"
-HERMES_LOGS="$HOME/hermes/logs"
+HERMES_LOGS="$HERMES_HOME/logs"
 
 section() { printf '\n========== %s ==========\n' "$*"; }
 
