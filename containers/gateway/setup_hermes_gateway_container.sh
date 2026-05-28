@@ -2,8 +2,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Load safe env
+. "$SCRIPT_DIR/../../.env.safe"
+
 QUADLET_DIR="$HOME/.config/containers/systemd"
-IMAGE_NAME="localhost/hermes:v1"
+IMAGE_NAME="localhost/hermes:$CURRENT_TAG"
 
 log() { printf '[gateway-setup] %s\n' "$*"; }
 fail() { printf '[gateway-setup] ERROR: %s\n' "$*" >&2; exit 1; }
@@ -16,7 +20,9 @@ fi
 mkdir -p "$QUADLET_DIR"
 
 # Always overwrite — file is the source of truth.
-cp "$SCRIPT_DIR/hermes-gateway.container" "$QUADLET_DIR/hermes-gateway.container"
+sed "s|__CURRENT_TAG__|$CURRENT_TAG|g" \
+  "$SCRIPT_DIR/hermes-gateway.container" \
+  > "$QUADLET_DIR/hermes-gateway.container"
 log "Installed hermes-gateway.container"
 
 # Stop the existing service (if any) so the next start uses the new spec cleanly.

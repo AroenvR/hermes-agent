@@ -9,6 +9,12 @@ Setup notes for running [Hermes Agent](https://hermes-agent.nousresearch.com/) i
 - Ensure it fits the Containerfile and host_bootstrap.sh and other supporting files in naming conventions.
 - Mention the bootstrap_skills script needs to be ran once the gateway is configured and up & running.
 
+#### Update process docs
+- update .env.safe CURRENT_TAG variable
+- call build_image script
+- systemctl --user stop hermes-dashboard.service hermes-gateway.service
+- call container scripts
+
 ---
 
 ## What you'll have at the end

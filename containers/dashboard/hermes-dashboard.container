@@ -6,7 +6,7 @@ Wants=network-online.target
 
 [Container]
 ContainerName=hermes-dashboard
-Image=localhost/hermes:v1
+Image=localhost/hermes:__CURRENT_TAG__
 UserNS=keep-id
 Volume=%h/hermes:/home/hermes/.hermes:Z
 Network=host
