@@ -15,6 +15,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Source the common script
+. "$SCRIPT_DIR/../library/common.sh"
+
 log() {
   printf '[bootstrap-skills] %s\n' "$*"
 }
