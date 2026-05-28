@@ -1,17 +1,17 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 set -e
 
-# load env (only safe if .env.safe contains simple VAR=value lines)
+# Load safe env
 . .env.safe
 
-echo $CURRENT_TAG
+# Build a completely new image
+podman build --no-cache --pull=always --tag hermes:$CURRENT_TAG .
 
-# podman build --no-cache --pull=always --tag hermes:$CURRENT_TAG .
-
-# podman run --rm -it hermes:$CURRENT_TAG bash -lc '
-#   whoami
-#   node --version
-#   python3 --version
-#   command -v hermes
-#   hermes --version || hermes version || true
-# '
+# Check the image was built successfully and output its versions
+podman run --rm -it hermes:$CURRENT_TAG bash -lc '
+  whoami
+  node --version
+  python3 --version
+  command -v hermes
+  hermes --version || hermes version || true
+'

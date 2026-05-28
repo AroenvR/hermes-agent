@@ -2,36 +2,42 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-QUADLET_DIR="$HOME/.config/containers/systemd"
-IMAGE_NAME="localhost/hermes:v1"
 
-log() { printf '[dashboard-setup] %s\n' "$*"; }
-fail() { printf '[dashboard-setup] ERROR: %s\n' "$*" >&2; exit 1; }
+# Load safe env
+. $SCRIPT_DIR/../../.env.safe
 
-# Pre-flight: image must exist before systemd tries to start a container from it.
-if ! podman image exists "$IMAGE_NAME"; then
-  fail "Image '$IMAGE_NAME' not found. Build it first with: podman build --tag $IMAGE_NAME -f /path/to/Containerfile ."
-fi
+echo $CURRENT_TAG
 
-mkdir -p "$QUADLET_DIR"
+# QUADLET_DIR="$HOME/.config/containers/systemd"
+# IMAGE_NAME="localhost/hermes:v1"
 
-# Always overwrite — file is the source of truth.
-cp "$SCRIPT_DIR/hermes-dashboard.container" "$QUADLET_DIR/hermes-dashboard.container"
-log "Installed hermes-dashboard.container"
+# log() { printf '[dashboard-setup] %s\n' "$*"; }
+# fail() { printf '[dashboard-setup] ERROR: %s\n' "$*" >&2; exit 1; }
 
-# Stop the existing service (if any) so the next start uses the new spec cleanly.
-systemctl --user stop hermes-dashboard.service 2>/dev/null || true
-log "Stopped existing hermes-dashboard service (if any)"
+# # Pre-flight: image must exist before systemd tries to start a container from it.
+# if ! podman image exists "$IMAGE_NAME"; then
+#   fail "Image '$IMAGE_NAME' not found. Build it first with: podman build --tag $IMAGE_NAME -f /path/to/Containerfile ."
+# fi
 
-# Reload systemd to pick up the new/changed unit definition.
-systemctl --user daemon-reload
-log "Reloaded systemd user units"
+# mkdir -p "$QUADLET_DIR"
 
-# Start the service.
-systemctl --user start hermes-dashboard.service
-log "Started hermes-dashboard"
+# # Always overwrite — file is the source of truth.
+# cp "$SCRIPT_DIR/hermes-dashboard.container" "$QUADLET_DIR/hermes-dashboard.container"
+# log "Installed hermes-dashboard.container"
 
-# Show status.
-systemctl --user status hermes-dashboard.service --no-pager | head -10
+# # Stop the existing service (if any) so the next start uses the new spec cleanly.
+# systemctl --user stop hermes-dashboard.service 2>/dev/null || true
+# log "Stopped existing hermes-dashboard service (if any)"
 
-log "Open an SSH tunnel with 'ssh -L 9119:127.0.0.1:9119 USER@SERVER_IP' to access the dashboard on your local machine at http://127.0.0.1:9119"
+# # Reload systemd to pick up the new/changed unit definition.
+# systemctl --user daemon-reload
+# log "Reloaded systemd user units"
+
+# # Start the service.
+# systemctl --user start hermes-dashboard.service
+# log "Started hermes-dashboard"
+
+# # Show status.
+# systemctl --user status hermes-dashboard.service --no-pager | head -10
+
+# log "Open an SSH tunnel with 'ssh -L 9119:127.0.0.1:9119 USER@SERVER_IP' to access the dashboard on your local machine at http://127.0.0.1:9119"
