@@ -1,0 +1,1 @@
+podman exec -it hermes-gateway hermes update

@@ -8,12 +8,15 @@ Setup notes for running [Hermes Agent](https://hermes-agent.nousresearch.com/) i
 - Create a script for the actions in this README file, simply provide the README file as documentation, not a walkthrough.
 - Ensure it fits the Containerfile and host_bootstrap.sh and other supporting files in naming conventions.
 - Mention the bootstrap_skills script needs to be ran once the gateway is configured and up & running.
+- Rewrite this README...
 
 #### Update process docs
 - update .env.safe CURRENT_TAG variable
 - call build_image script
 - systemctl --user stop hermes-dashboard.service hermes-gateway.service
 - call container scripts
+
+- podman exec -it hermes-gateway hermes update
 
 ---
 
