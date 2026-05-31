@@ -13,7 +13,7 @@ main() {
   log "Setting up $SKILL_NAME"
 
   ensure_dir "$DESTINATION_DIR"
-  copy_file_if_missing "$SCRIPT_DIR/SKILL.md" "$DESTINATION_DIR"
+  copy_file_if_missing "$SCRIPT_DIR/SKILL.md" "$DESTINATION_DIR/SKILL.md"
 
   log "Done"
 }

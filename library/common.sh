@@ -35,7 +35,6 @@ ensure_dir() {
   fi
 
   mkdir -p "$dir"
-  log "Created directory: $dir"
 }
 
 copy_file_if_missing() {
