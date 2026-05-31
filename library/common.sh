@@ -118,6 +118,37 @@ set_skill_env_vars() {
   log "Located skill: $SKILL_NAME - category: $SKILL_CATEGORY"
 }
 
+copy_missing_files() {
+  local src="$1"
+  local dest="$2"
+
+  [[ -d "$src" ]] || fail "Source directory is missing: $src"
+
+  if [[ -e "$dest" && ! -d "$dest" ]]; then
+    fail "Path exists but is not a directory: $dest"
+  fi
+
+  ensure_dir "$dest"
+
+  # Recurse into subdirectories first, then copy files at this level.
+  # Reuses ensure_dir / copy_file_if_missing so the non-destructive,
+  # "leave existing unchanged" contract holds for every entry.
+  local entry name
+  for entry in "$src"/*; do
+    # Guard against a literal '*' when a directory has no matching entries.
+    [[ -e "$entry" ]] || continue
+    name="$(basename "$entry")"
+
+    if [[ -d "$entry" ]]; then
+      copy_missing_files "$entry" "$dest/$name"
+    elif [[ -f "$entry" ]]; then
+      copy_file_if_missing "$entry" "$dest/$name"
+    else
+      log "Skipping non-regular entry: $entry"
+    fi
+  done
+}
+
 require_file "$ENV_FILE"
 
 # shellcheck source=/dev/null
