@@ -119,33 +119,33 @@ set_skill_env_vars() {
 }
 
 copy_missing_files() {
+  local fn_name="set_skill_env_vars"
+
   local src="$1"
   local dest="$2"
 
-  [[ -d "$src" ]] || fail "Source directory is missing: $src"
+  [[ -d "$src" ]] || fail "$fn_name: Source directory is missing: $src"
 
   if [[ -e "$dest" && ! -d "$dest" ]]; then
-    fail "Path exists but is not a directory: $dest"
+    fail "$fn_name: Path exists but is not a directory: $dest"
   fi
 
   ensure_dir "$dest"
 
-  # Recurse into subdirectories first, then copy files at this level.
-  # Reuses ensure_dir / copy_file_if_missing so the non-destructive,
-  # "leave existing unchanged" contract holds for every entry.
-  local entry name
-  for entry in "$src"/*; do
-    # Guard against a literal '*' when a directory has no matching entries.
-    [[ -e "$entry" ]] || continue
-    name="$(basename "$entry")"
-
-    if [[ -d "$entry" ]]; then
-      copy_missing_files "$entry" "$dest/$name"
-    elif [[ -f "$entry" ]]; then
-      copy_file_if_missing "$entry" "$dest/$name"
-    else
-      log "Skipping non-regular entry: $entry"
-    fi
+  # Walk the source tree with `find` (handles arbitrary depth — no recursion
+  # in our code, no while loop) and copy each regular file that's missing at
+  # the destination. The skill's own setup.sh is excluded so it isn't deployed.
+  # Reuses copy_file_if_missing to keep the non-destructive contract.
+  #
+  # Note: paths containing newlines are not supported (find is newline-delimited
+  # here); skill files never contain them. Spaces in names ARE handled.
+  local src_file rel dest_file
+  local IFS=$'\n'
+  for src_file in $(find "$src" -type f ! -name 'setup.sh'); do
+    rel="${src_file#"$src"/}"          # path relative to src root
+    dest_file="$dest/$rel"
+    ensure_dir "$(dirname "$dest_file")"
+    copy_file_if_missing "$src_file" "$dest_file"
   done
 }
 
