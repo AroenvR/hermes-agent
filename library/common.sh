@@ -23,6 +23,7 @@ require_file() {
 
 ensure_dir() {
   local dir="$1"
+  log "Ensuring directory: $dir"
 
   if [[ -d "$dir" ]]; then
     log "Directory exists, leaving unchanged: $dir"
@@ -65,18 +66,7 @@ require_var() {
   fi
 }
 
-# Derive a skill's category and name from the calling script's location.
-# Assumes the layout: <...>/skills/<category>/<skill_name>/<script>
-# Walks up from the given directory to the nearest ancestor named "skills",
-# then reads the two path segments directly beneath it.
-#
-# Usage (from a skill's setup.sh):
-#   skill_self_locate "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Sets, on success:
-#   SKILL_DIR       absolute path to the skill directory
-#   SKILL_CATEGORY  e.g. "cognition"
-#   SKILL_NAME      e.g. "cerebrum"
-skill_self_locate() {
+set_skill_env_vars() {
   local start_dir="$1"
   [[ -n "$start_dir" ]] || fail "skill_self_locate: no start directory given"
   [[ -d "$start_dir" ]] || fail "skill_self_locate: not a directory: $start_dir"
@@ -108,8 +98,6 @@ skill_self_locate() {
 
   DESTINATION_DIR="$HERMES_HOME/skills/$SKILL_CATEGORY/$SKILL_NAME"
   log "Skill destination: '$DESTINATION_DIR'"
-
-  echo "$SKILL_NAME $SKILL_CATEGORY $DESTINATION_DIR"
 }
 
 require_file "$ENV_FILE"

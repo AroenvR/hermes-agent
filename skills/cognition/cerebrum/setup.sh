@@ -8,9 +8,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$SCRIPT_DIR/../../../library/common.sh"
 
 main() {
-  read -r a b c < <(skill_self_locate "$SCRIPT_DIR")
+  set_skill_env_vars $SCRIPT_DIR
 
-  log "SKILL_NAME: $a, SKILL_CATEGORY: $b, DESTINATION_DIR: $c"
+  log "Setting up $SKILL_NAME"
+
+  ensure_dir "$DESTINATION_DIR"
+  copy_file_if_missing "$SCRIPT_DIR/SKILL.md" "$DESTINATION_DIR"
+
+  log "Done"
 }
 
 main "$@"
