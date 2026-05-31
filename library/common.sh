@@ -66,31 +66,53 @@ require_var() {
 }
 
 set_skill_env_vars() {
+  local fn_name="set_skill_env_vars"
+
   local start_dir="$1"
-  [[ -n "$start_dir" ]] || fail "skill_self_locate: no start directory given"
-  [[ -d "$start_dir" ]] || fail "skill_self_locate: not a directory: $start_dir"
+  [[ -n "$start_dir" ]] || fail "$fn_name: no start directory given"
+  [[ -d "$start_dir" ]] || fail "$fn_name: not a directory: $start_dir"
 
   require_var HERMES_HOME
+  require_var PROJECT_ROOT
 
-  local skill_dir="$start_dir"
-  local dir="$start_dir"
+  local skill_dir
+  local dir
   local parent
+  local max_steps=5
+  local step
 
-  # Walk up until the parent of the current dir is named "skills".
-  while true; do
+  skill_dir="$(cd -- "$start_dir" && pwd -P)" ||
+    fail "$fn_name: could not resolve directory: $start_dir"
+
+  dir="$skill_dir"
+
+  for ((step = 0; step <= max_steps; step++)); do
+    if [[ "$dir" == "$PROJECT_ROOT" ]]; then
+      fail "$fn_name: reached PROJECT_ROOT without finding skills ancestor: $start_dir"
+    fi
+
+    if [[ "$dir" == "$HOME" ]]; then
+      fail "$fn_name: reached HOME without finding skills ancestor: $start_dir"
+    fi
+
     parent="$(dirname "$dir")"
+
     if [[ "$(basename "$parent")" == "skills" ]]; then
-      SKILL_CATEGORY="$(basename "$(dirname "$dir")")"   # placeholder; see note
+      SKILL_CATEGORY="$(basename "$dir")"
       break
     fi
+
     if [[ "$parent" == "$dir" ]]; then
-      fail "skill_self_locate: no 'skills' ancestor found above $start_dir"
+      fail "$fn_name: reached filesystem root without finding skills ancestor: $start_dir"
     fi
+
     dir="$parent"
   done
 
+  [[ -n "${SKILL_CATEGORY:-}" ]] ||
+    fail "$fn_name: no 'skills' ancestor found within $max_steps levels above $start_dir"
+
   SKILL_NAME="$(basename "$skill_dir")"
-  SKILL_CATEGORY="$(basename "$dir")"
   DESTINATION_DIR="$HERMES_HOME/skills/$SKILL_CATEGORY/$SKILL_NAME"
 
   log "Located skill: $SKILL_NAME - category: $SKILL_CATEGORY"
