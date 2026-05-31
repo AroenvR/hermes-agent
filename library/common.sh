@@ -100,14 +100,16 @@ skill_self_locate() {
     dir="$parent"
   done
 
-  # At this point: dir = <category>, parent = skills
-  SKILL_CATEGORY="$(basename "$dir")"
-  # Only correct if setup.sh sits in the skill root
   SKILL_NAME="$(basename "$skill_dir")"
-  log "Located skill: name='$SKILL_NAME' category='$SKILL_CATEGORY'"
+  log "Located skill: $SKILL_NAME"
+
+  SKILL_CATEGORY="$(basename "$dir")"
+  log "Skill category: $SKILL_CATEGORY"
 
   DESTINATION_DIR="$HERMES_HOME/skills/$SKILL_CATEGORY/$SKILL_NAME"
-  log "Skill: destination='$DESTINATION_DIR'"
+  log "Skill destination: '$DESTINATION_DIR'"
+
+  echo "$SKILL_NAME $SKILL_CATEGORY $DESTINATION_DIR"
 }
 
 require_file "$ENV_FILE"

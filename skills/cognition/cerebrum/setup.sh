@@ -14,14 +14,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # DEST_SKILL_MD="$SKILL_DIR/SKILL.md"
 
 main() {
-#   log "USER: $USER"
-#   log "HERMES_HOME: $HERMES_HOME"
-#   log "Source skill: $SOURCE_SKILL_MD"
-#   log "Skill destination: $SKILL_DIR"
+  read a b c < <(skill_self_locate $SCRIPT_DIR)
+  
+  log "Setting up $SKILL_NAME"
 
-  skill_self_locate $SCRIPT_DIR
+  log "a: $a, b: $b, c: $c"
 
-#   ensure_dir "$SKILL_DIR"
+  # ensure_dir "$DESTINATION_DIR"
 #   copy_file_if_missing "$SOURCE_SKILL_MD" "$DEST_SKILL_MD"
 
 #   copy_file_if_missing "$SOURCE_INDEX_MD" "$DEST_INDEX_MD"
