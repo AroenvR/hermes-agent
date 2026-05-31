@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$SCRIPT_DIR/../../../library/common.sh"
 
 main() {
-  set_skill_env_vars $SCRIPT_DIR
+  set_skill_env_vars $SCRIPT_DIR # Provides $SKILL_NAME, $SKILL_CATEGORY, $DESTINATION_DIR
 
   log "Setting up $SKILL_NAME"
 

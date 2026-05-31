@@ -90,13 +90,10 @@ set_skill_env_vars() {
   done
 
   SKILL_NAME="$(basename "$skill_dir")"
-  log "Located skill: $SKILL_NAME"
-
   SKILL_CATEGORY="$(basename "$dir")"
-  log "Skill category: $SKILL_CATEGORY"
-
   DESTINATION_DIR="$HERMES_HOME/skills/$SKILL_CATEGORY/$SKILL_NAME"
-  log "Skill destination: '$DESTINATION_DIR'"
+
+  log "Located skill: $SKILL_NAME - category: $SKILL_CATEGORY"
 }
 
 require_file "$ENV_FILE"
