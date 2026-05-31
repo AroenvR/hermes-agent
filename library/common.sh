@@ -107,7 +107,7 @@ skill_self_locate() {
   log "Located skill: name='$SKILL_NAME' category='$SKILL_CATEGORY'"
 
   DESTINATION_DIR="$HERMES_HOME/skills/$SKILL_CATEGORY/$SKILL_NAME"
-  log "Skill: destination='$SKILL_DIR'"
+  log "Skill: destination='$DESTINATION_DIR'"
 }
 
 require_file "$ENV_FILE"
