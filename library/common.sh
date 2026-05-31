@@ -76,11 +76,12 @@ require_var() {
 #   SKILL_DIR       absolute path to the skill directory
 #   SKILL_CATEGORY  e.g. "cognition"
 #   SKILL_NAME      e.g. "cerebrum"
-#   SKILLS_ROOT     absolute path to the "skills" directory
 skill_self_locate() {
   local start_dir="$1"
   [[ -n "$start_dir" ]] || fail "skill_self_locate: no start directory given"
   [[ -d "$start_dir" ]] || fail "skill_self_locate: not a directory: $start_dir"
+
+  require_var HERMES_HOME
 
   local skill_dir="$start_dir"
   local dir="$start_dir"
@@ -90,7 +91,6 @@ skill_self_locate() {
   while true; do
     parent="$(dirname "$dir")"
     if [[ "$(basename "$parent")" == "skills" ]]; then
-      SKILLS_ROOT="$parent"
       SKILL_CATEGORY="$(basename "$(dirname "$dir")")"   # placeholder; see note
       break
     fi
@@ -102,9 +102,12 @@ skill_self_locate() {
 
   # At this point: dir = <category>, parent = skills
   SKILL_CATEGORY="$(basename "$dir")"
-  SKILL_NAME="$(basename "$skill_dir")"   # only correct if setup.sh sits in the skill root
-  SKILL_DIR="$skill_dir"
-  log "Located skill: category='$SKILL_CATEGORY' name='$SKILL_NAME' (root: $SKILLS_ROOT)"
+  # Only correct if setup.sh sits in the skill root
+  SKILL_NAME="$(basename "$skill_dir")"
+  log "Located skill: name='$SKILL_NAME' category='$SKILL_CATEGORY'"
+
+  DESTINATION_DIR="$HERMES_HOME/skills/$SKILL_CATEGORY/$SKILL_NAME"
+  log "Skill: destination='$SKILL_DIR'"
 }
 
 require_file "$ENV_FILE"
