@@ -1,0 +1,3 @@
+- Create setup.sh script (for bootstrapping)
+- Include guidance for the AI to finalize setup when the skill is used for its very first time (separate file, tiny pointer for the AI to find, but easily if setup)
+- Automate Hindsight installation & configuration + memory overwriting (all Hermes config, I assume, but we need to look at how to do this properly)

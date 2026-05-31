@@ -65,6 +65,48 @@ require_var() {
   fi
 }
 
+# Derive a skill's category and name from the calling script's location.
+# Assumes the layout: <...>/skills/<category>/<skill_name>/<script>
+# Walks up from the given directory to the nearest ancestor named "skills",
+# then reads the two path segments directly beneath it.
+#
+# Usage (from a skill's setup.sh):
+#   skill_self_locate "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Sets, on success:
+#   SKILL_DIR       absolute path to the skill directory
+#   SKILL_CATEGORY  e.g. "cognition"
+#   SKILL_NAME      e.g. "cerebrum"
+#   SKILLS_ROOT     absolute path to the "skills" directory
+skill_self_locate() {
+  local start_dir="$1"
+  [[ -n "$start_dir" ]] || fail "skill_self_locate: no start directory given"
+  [[ -d "$start_dir" ]] || fail "skill_self_locate: not a directory: $start_dir"
+
+  local skill_dir="$start_dir"
+  local dir="$start_dir"
+  local parent
+
+  # Walk up until the parent of the current dir is named "skills".
+  while true; do
+    parent="$(dirname "$dir")"
+    if [[ "$(basename "$parent")" == "skills" ]]; then
+      SKILLS_ROOT="$parent"
+      SKILL_CATEGORY="$(basename "$(dirname "$dir")")"   # placeholder; see note
+      break
+    fi
+    if [[ "$parent" == "$dir" ]]; then
+      fail "skill_self_locate: no 'skills' ancestor found above $start_dir"
+    fi
+    dir="$parent"
+  done
+
+  # At this point: dir = <category>, parent = skills
+  SKILL_CATEGORY="$(basename "$dir")"
+  SKILL_NAME="$(basename "$skill_dir")"   # only correct if setup.sh sits in the skill root
+  SKILL_DIR="$skill_dir"
+  log "Located skill: category='$SKILL_CATEGORY' name='$SKILL_NAME' (root: $SKILLS_ROOT)"
+}
+
 require_file "$ENV_FILE"
 
 # shellcheck source=/dev/null
