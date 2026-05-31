@@ -23,10 +23,8 @@ require_file() {
 
 ensure_dir() {
   local dir="$1"
-  log "Ensuring directory: $dir"
 
   if [[ -d "$dir" ]]; then
-    log "Directory exists, leaving unchanged: $dir"
     return 0
   fi
 
@@ -35,6 +33,7 @@ ensure_dir() {
   fi
 
   mkdir -p "$dir"
+  log "Created directory: $dir"
 }
 
 copy_file_if_missing() {
