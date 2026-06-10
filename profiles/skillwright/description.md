@@ -1,0 +1,1 @@
+Designs, writes, and validates safe, portable Hermes Agent skills for new profiles.
