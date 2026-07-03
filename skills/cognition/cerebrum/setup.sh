@@ -16,3 +16,25 @@ main() {
 }
 
 main "$@"
+
+
+
+
+$ podman exec -it hermes-gateway hermes memory setup
+
+Installing dependencies: hindsight-client>=0.4.22
+✓ Installed hindsight-client>=0.4.22
+
+Configuring Hindsight memory:
+
+
+Checking dependencies...
+✓ Dependencies up to date
+LLM model [gpt-4o-mini]: 
+LLM API key: ********************************************************************************************************************************************************************
+
+✓ Hindsight memory configured (local_embedded mode)
+API keys saved to .env
+
+Start a new session to activate.
+Saved to config.yaml

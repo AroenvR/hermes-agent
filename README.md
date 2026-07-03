@@ -10,6 +10,8 @@ Setup notes for running [Hermes Agent](https://hermes-agent.nousresearch.com/) i
 - Mention the bootstrap_skills script needs to be ran once the gateway is configured and up & running.
 - Rewrite this README...
 - Update scripts to use common script's helpers, not re-define everything
+- Setup `redact_pii` setting to true => `hermes config set security.redact_secrets true`
+- Setup `redact_secrets` to true (or at least validate that it is) => `hermes config set security.redact_secrets true`
 
 #### Update process docs
 - update .env.safe CURRENT_TAG variable
